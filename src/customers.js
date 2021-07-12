@@ -1,3 +1,4 @@
+const { request } = require('express')
 const admin = require('firebase-admin')
 const credentials = require('../credentials.json')
 
@@ -18,6 +19,25 @@ exports.getCustomers = (request, response) => {
         response.send(allCustomers)
     })
     .catch(err => {
+        console.error(err)
+        response.status(500).send(err)
+    })
+}
+
+
+exports.getCustomerById = ( request, response ) => {
+    if(!request.params.id) {
+        response.status(400).send('No Customer Specified!')
+        return
+    }
+    const db = connectDb()
+    db.collection('customers').doc(request.params.id).get()
+        .then(doc => {
+            const customer = doc.data()
+            customer.id = doc.id
+            response.send(customer)
+    })
+        .catch( err => {
         console.error(err)
         response.status(500).send(err)
     })
