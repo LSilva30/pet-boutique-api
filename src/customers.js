@@ -26,19 +26,38 @@ exports.getCustomers = (request, response) => {
 
 
 exports.getCustomerById = ( request, response ) => {
-    if(!request.params.id) {
+    if(!request.params.customerId) {
         response.status(400).send('No Customer Specified!')
         return
     }
     const db = connectDb()
-    db.collection('customers').doc(request.params.id).get()
-        .then(doc => {
-            const customer = doc.data()
-            customer.id = doc.id
+    db.collection('customers').doc(request.params.customerId).get()
+        .then(customerDoc => {
+            const customer = customerDoc.data()
+            customer.id = customerDoc.id
             response.send(customer)
     })
         .catch( err => {
         console.error(err)
         response.status(500).send(err)
     })
+}
+
+exports.getCustomerByQuery = ( req, res ) => {
+    // get query from req.query
+    const { fname } = req.query
+    //connect to firestore
+    const db = connectDb()
+    // search customers collection based on query
+    db.collection('customers').where('firstName', '==', fname).get()
+     //respond with results
+    .then(customerCollection => {
+        const matches = customerCollection.docs.map(doc => {
+            let customer = doc.data()
+            customer.id = doc.id
+            return customer
+        })
+        res.send(matches)
+    })
+    .catch( err => res.status(500).send(err))
 }
