@@ -86,3 +86,13 @@ exports.deleteCustomer = ( req, res ) => {
   .then(() => res.status(203).send('Document succesfully deleted.'))
   .catch(err => res.status(500).send(err))
 }
+
+exports.updateCustomers = ( req, res ) => {
+  const db = connectDb()
+  const { docId } = req.params
+  db.collection('customers').doc(docId).update(
+    { ...req.body, timestamp: admin.firestore.FieldValue.serverTimestamp() }
+    )
+  .then(res.status(202).send('Document was succesfully updated.'))
+  .catch(err => res.status(500).send(err))
+}
