@@ -90,9 +90,11 @@ exports.deleteCustomer = ( req, res ) => {
 exports.updateCustomers = ( req, res ) => {
   const db = connectDb()
   const { docId } = req.params
-  db.collection('customers').doc(docId).update(
-    { ...req.body, timestamp: admin.firestore.FieldValue.serverTimestamp() }
-    )
+  let customerUpdates = req.body
+  customerUpdates.timestamp = admin.firestore.FieldValue.serverTimestamp()
+
+
+  db.collection('customers').doc(docId).update(customerUpdates)
   .then(res.status(202).send('Document was succesfully updated.'))
   .catch(err => res.status(500).send(err))
 }
